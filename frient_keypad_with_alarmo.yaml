@@ -1,0 +1,277 @@
+blueprint:
+  name: Frient Keypad with Alarmo
+  description:
+    This Blueprint allows the synchronisation of an alarm control panel
+    with a Zigbee2MQTT keypad. This means that the status of the alarm control panel
+    is transmitted to the keypad and vice versa.
+  domain: automation
+  input:
+    z2m_keypad_path:
+      name: MQTT State Topic of your Zigbee2MQTT Keypad
+      description:
+        "The State Topic is composed of your Zigbee2MQTT base_topic (see
+        your Z2M Addon Configuration) and the Friendly Name of your keypad in Z2M.
+        Example: zigbee2mqtt/Keypad"
+    z2m_keypad_path_set:
+      name: MQTT Set Topic of your Zigbee2MQTT Keypad
+      description:
+        "This is the same as your State Topic, with the addition of /set.
+        Example: zigbee2mqtt/Keypad/set"
+    pin:
+      name: Pincode
+      description:
+        "The valid pin code to be accepted as correct by your alarm system.
+        Example: 1234"
+    control_panel:
+      name: Control Panel
+      description: "An alarm control panel. Example: https://www.home-assistant.io/integrations/manual"
+      default: []
+      selector:
+        entity:
+          domain:
+            - alarm_control_panel
+          multiple: false
+    action_arming:
+      name: Action Arming
+      description:
+        An action to be performed when the alarm panel changes to the arming
+        state.
+      default: []
+      selector:
+        action: {}
+    action_armed_home:
+      name: Action Armed Home
+      description:
+        An action to be performed when the alarm panel changes to the armed
+        home state.
+      default: []
+      selector:
+        action: {}
+    action_armed_night:
+      name: Action Armed Night
+      description:
+        An action to be performed when the alarm panel changes to the armed
+        night state.
+      default: []
+      selector:
+        action: {}
+    action_armed_away:
+      name: Action Armed Away
+      description:
+        An action to be performed when the alarm panel changes to the armed
+        away state.
+      default: []
+      selector:
+        action: {}
+    action_disarmed:
+      name: Action Disarmed
+      description:
+        An action to be performed when the alarm panel changes to the disarmed
+        state.
+      default: []
+      selector:
+        action: {}
+    action_pending:
+      name: Action Pending
+      description:
+        An action to be performed when the alarm panel changes to the pending
+        state.
+      default: []
+      selector:
+        action: {}
+    action_panic:
+      name: Action Panic
+      description:
+        An action to be performed when the panic / SOS button of the keypad
+        is pressed.
+      default: []
+      selector:
+        action: {}
+    action_alarm:
+      name: Action Alarm
+      description: An action to be performed when alarm is triggered
+        is pressed.
+      default: []
+      selector:
+        action: {}
+  source_url: https://community.home-assistant.io/t/zigbee2mqtt-sync-keypad-and-with-alarm-control-panel-states/345311
+variables:
+  pin_var: !input pin
+trigger:
+  - platform: state
+    entity_id: !input control_panel
+    to: arming
+    id: panel_arming
+  - platform: state
+    entity_id: !input control_panel
+    to: armed_night
+    id: panel_armed_night
+  - platform: state
+    entity_id: !input control_panel
+    to: disarmed
+    id: panel_disarmed
+  - platform: state
+    entity_id: !input control_panel
+    to: armed_away
+    id: panel_armed_away
+  - platform: state
+    entity_id: !input control_panel
+    to: pending
+    id: panel_pending
+  - platform: state
+    entity_id: !input control_panel
+    to: triggered
+    id: panel_triggered
+  - platform: mqtt
+    topic: !input z2m_keypad_path
+    id: keypad_mqtt
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: panel_arming
+        sequence:
+          - data:
+              topic: zigbee2mqtt/Keypad/set
+              payload: |-
+                {
+                "arm_mode": 
+                  {
+                  "mode": "exit_delay"
+                  }
+                }
+            action: mqtt.publish
+          - choose:
+            default: !input action_arming
+      - conditions:
+          - condition: trigger
+            id: panel_armed_away
+        sequence:
+          - service: mqtt.publish
+            data:
+              topic: !input z2m_keypad_path_set
+              payload: "{\n \"arm_mode\": \n  {\n   \"mode\": \"arm_all_zones\"\n  }\n}"
+          - choose:
+            default: !input action_armed_away
+      - conditions:
+          - condition: trigger
+            id: panel_disarmed
+        sequence:
+          - service: mqtt.publish
+            data:
+              topic: !input z2m_keypad_path_set
+              payload: "{\n \"arm_mode\": \n  {\n    \"mode\": \"disarm\"\n  }\n}"
+          - choose:
+            default: !input action_disarmed
+      - conditions:
+          - condition: trigger
+            id: panel_armed_home
+        sequence:
+          - service: mqtt.publish
+            data:
+              topic: !input z2m_keypad_path_set
+              payload: "{\n \"arm_mode\": \n  {\n   \"mode\": \"arm_day_zones\"\n  }\n}"
+          - choose:
+            default: !input action_armed_home
+      - conditions:
+          - condition: trigger
+            id: panel_armed_night
+        sequence:
+          - service: mqtt.publish
+            data:
+              topic: !input z2m_keypad_path_set
+              payload: "{\n \"arm_mode\": \n  {\n   \"mode\": \"arm_night_zones\"\n  }\n}"
+          - choose:
+            default: !input action_armed_night
+      - conditions:
+          - condition: trigger
+            id: panel_pending
+        sequence:
+          - service: mqtt.publish
+            data:
+              topic: !input z2m_keypad_path_set
+              payload: "{\n \"arm_mode\": \n  {\n   \"mode\": \"entry_delay\"\n  }\n}"
+          - choose:
+            default: !input action_pending
+      - conditions:
+          - condition: trigger
+            id: panel_triggered
+        sequence:
+          - service: mqtt.publish
+            data:
+              topic: !input z2m_keypad_path_set
+              payload: "{\n \"arm_mode\": \n  {\n   \"mode\": \"in_alarm\"\n  }\n}"
+          - choose:
+            default: !input action_alarm
+      - conditions:
+          - condition: trigger
+            id: keypad_mqtt
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template:
+                      '{{ trigger.payload_json.action_code == pin_var and trigger.payload_json.action
+                      == "arm_all_zones" }}'
+                sequence:
+                  - service: alarm_control_panel.alarm_arm_away
+                    target:
+                      entity_id: !input control_panel
+                    data:
+                      code: !input pin
+              - conditions:
+                  - condition: template
+                    value_template:
+                      '{{ trigger.payload_json.action_code == pin_var and trigger.payload_json.action
+                      == "arm_day_zones" }}'
+                sequence:
+                  - service: alarm_control_panel.alarm_arm_home
+                    target:
+                      entity_id: !input control_panel
+                    data:
+                      code: !input pin
+              - conditions:
+                  - condition: template
+                    value_template:
+                      '{{ trigger.payload_json.action_code == pin_var and trigger.payload_json.action
+                      == "arm_night_zones" }}'
+                sequence:
+                  - service: alarm_control_panel.alarm_arm_night
+                    target:
+                      entity_id: !input control_panel
+                    data:
+                      code: !input pin
+              - conditions:
+                  - condition: template
+                    value_template:
+                      '{{ trigger.payload_json.action_code == pin_var and trigger.payload_json.action
+                      == "disarm" }}'
+                sequence:
+                  - service: alarm_control_panel.alarm_disarm
+                    target:
+                      entity_id: !input control_panel
+                    data:
+                      code: !input pin
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.payload_json.action == "emergency" }}'
+                sequence:
+                  - choose:
+                    default: !input action_panic
+              - conditions:
+                  - condition: template
+                    value_template:
+                      "{{ trigger.payload_json.action_code != pin_var and trigger.payload_json.action_code
+                      | int(-1) != -1 }}"
+                sequence:
+                  - service: mqtt.publish
+                    data:
+                      topic: !input z2m_keypad_path_set
+                      payload:
+                        "{\n \"arm_mode\": \n  {\n   \"transaction\": \"{{ trigger.payload_json.action_transaction
+                        }}\",\n   \"mode\": \"invalid_code\"\n  }\n}"
+            default: []
+    default: []
+mode: parallel
+max: 10
