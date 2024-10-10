@@ -10,18 +10,22 @@ blueprint:
       name: MQTT State Topic of your Zigbee2MQTT Keypad
       description:
         "The State Topic is composed of your Zigbee2MQTT base_topic (see
-        your Z2M Addon Configuration) and the Friendly Name of your keypad in Z2M.
+        your Z2M Addon Configuration) and the Friendly Name of your keypad in Z2M.\n
         Example: zigbee2mqtt/Keypad"
     z2m_keypad_path_set:
       name: MQTT Set Topic of your Zigbee2MQTT Keypad
       description:
-        "This is the same as your State Topic, with the addition of /set.
+        "This is the same as your State Topic, with the addition of /set.\n
         Example: zigbee2mqtt/Keypad/set"
-    pin:
-      name: Pincode
+    pin_list:
+      name: Pincode List
       description:
-        "The valid pin code to be accepted as correct by your alarm system.
-        Example: 1234"
+        "A list of valid PIN codes and RFID tags that can be accepted by your keypad, separated by semicolons (;).\n
+        You can enter either a PIN code or an RFID tag for authentication.\n
+        For example: 1234; +ACF5678B"
+    pin_alarmo:
+      name: Alarmo Pincode
+      description: "The Valid Alarmo PIN Code to be used for controlling Alarmo."
     control_panel:
       name: Control Panel
       description: "An alarm control panel. Example: https://www.home-assistant.io/integrations/manual"
@@ -89,14 +93,14 @@ blueprint:
         action: {}
     action_alarm:
       name: Action Alarm
-      description: An action to be performed when alarm is triggered
-        is pressed.
+      description: An action to be performed when alarm is triggered is pressed.
       default: []
       selector:
         action: {}
-  source_url: https://community.home-assistant.io/t/zigbee2mqtt-sync-keypad-and-with-alarm-control-panel-states/345311
+  source_url: https://github.com/Bygood91/frient_keypad_alarmo/blob/main/frient_keypad_with_alarmo.yaml
 variables:
-  pin_var: !input pin
+  pin_list_var: !input pin_list
+  pin_list: "{{ pin_list_var.split(';') }}"
 trigger:
   - platform: state
     entity_id: !input control_panel
@@ -134,13 +138,7 @@ action:
         sequence:
           - data:
               topic: zigbee2mqtt/Keypad/set
-              payload: |-
-                {
-                "arm_mode": 
-                  {
-                  "mode": "exit_delay"
-                  }
-                }
+              payload: "{\n\"arm_mode\": \n  {\n  \"mode\": \"exit_delay\"\n  }\n}"
             action: mqtt.publish
           - choose:
             default: !input action_arming
@@ -212,47 +210,47 @@ action:
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code == pin_var and trigger.payload_json.action
+                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
                       == "arm_all_zones" }}'
                 sequence:
                   - service: alarm_control_panel.alarm_arm_away
                     target:
                       entity_id: !input control_panel
                     data:
-                      code: !input pin
+                      code: !input pin_alarmo
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code == pin_var and trigger.payload_json.action
+                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
                       == "arm_day_zones" }}'
                 sequence:
                   - service: alarm_control_panel.alarm_arm_home
                     target:
                       entity_id: !input control_panel
                     data:
-                      code: !input pin
+                      code: !input pin_alarmo
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code == pin_var and trigger.payload_json.action
+                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
                       == "arm_night_zones" }}'
                 sequence:
                   - service: alarm_control_panel.alarm_arm_night
                     target:
                       entity_id: !input control_panel
                     data:
-                      code: !input pin
+                      code: !input pin_alarmo
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code == pin_var and trigger.payload_json.action
+                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
                       == "disarm" }}'
                 sequence:
                   - service: alarm_control_panel.alarm_disarm
                     target:
                       entity_id: !input control_panel
                     data:
-                      code: !input pin
+                      code: !input pin_alarmo
               - conditions:
                   - condition: template
                     value_template: '{{ trigger.payload_json.action == "emergency" }}'
@@ -262,7 +260,7 @@ action:
               - conditions:
                   - condition: template
                     value_template:
-                      "{{ trigger.payload_json.action_code != pin_var and trigger.payload_json.action_code
+                      "{{ trigger.payload_json.action_code not in pin_list and trigger.payload_json.action_code
                       | int(-1) != -1 }}"
                 sequence:
                   - service: mqtt.publish
