@@ -1,106 +1,179 @@
 blueprint:
-  name: Frient Keypad with Alarmo
+  name: "Frient Keypad with Alarm Control Panel (ex: Alarmo)"
   description:
-    This Blueprint allows the synchronisation of an alarm control panel
-    with a Zigbee2MQTT keypad. This means that the status of the alarm control panel
-    is transmitted to the keypad and vice versa.
+    "This Blueprint allows the synchronisation of an alarm control panel
+    with a Zigbee2MQTT keypad. \nThis means that the status of the alarm control panel
+    is transmitted to the keypad and vice versa."
   domain: automation
+  homeassistant:
+    min_version: 2024.6.0
   input:
-    z2m_keypad_path:
-      name: MQTT State Topic of your Zigbee2MQTT Keypad
-      description:
-        "The State Topic is composed of your Zigbee2MQTT base_topic (see
-        your Z2M Addon Configuration) and the Friendly Name of your keypad in Z2M.\n
-        Example: zigbee2mqtt/Keypad"
-    z2m_keypad_path_set:
-      name: MQTT Set Topic of your Zigbee2MQTT Keypad
-      description:
-        "This is the same as your State Topic, with the addition of /set.\n
-        Example: zigbee2mqtt/Keypad/set"
-    pin_list:
-      name: Pincode List
-      description:
-        "A list of valid PIN codes and RFID tags that can be accepted by your keypad, separated by semicolons (;).\n
-        You can enter either a PIN code or an RFID tag for authentication.\n
-        For example: 1234; +ACF5678B"
-    pin_alarmo:
-      name: Alarmo Pincode
-      description: "The Valid Alarmo PIN Code to be used for controlling Alarmo."
+    keypad_mqtt:
+      name: Keypad MQTT
+      description: "Configure MQTT topics for the keypad and manage access codes or RFID tags."
+      icon: mdi:dialpad
+      collapsed: false
+      input:
+        z2m_keypad_path:
+          name: MQTT State Topic of your Zigbee2MQTT Keypad
+          description:
+            "The State Topic is composed of your Zigbee2MQTT base_topic (see
+            your Z2M Addon Configuration) and the Friendly Name of your keypad in Z2M.\n
+            Example: zigbee2mqtt/Keypad"
+        z2m_keypad_path_set:
+          name: MQTT Set Topic of your Zigbee2MQTT Keypad
+          description:
+            "This is the same as your State Topic, with the addition of /set.\n
+            Example: zigbee2mqtt/Keypad/set"
+        pin_list:
+          name: Keypad Pincode List
+          description:
+            "A list of valid PIN codes and RFID tags that can be accepted by
+            your keypad, separated by semicolons \" ; \".\n You can enter either a PIN code
+            or an RFID tag for authentication.\n For example: 1234; +ACF5678B"
     control_panel:
       name: Control Panel
-      description: "An alarm control panel. Example: https://www.home-assistant.io/integrations/manual"
-      default: []
-      selector:
-        entity:
-          domain:
-            - alarm_control_panel
-          multiple: false
-    action_arming:
-      name: Action Arming
-      description:
-        An action to be performed when the alarm panel changes to the arming
-        state.
-      default: []
-      selector:
-        action: {}
-    action_armed_home:
-      name: Action Armed Home
-      description:
-        An action to be performed when the alarm panel changes to the armed
-        home state.
-      default: []
-      selector:
-        action: {}
-    action_armed_night:
-      name: Action Armed Night
-      description:
-        An action to be performed when the alarm panel changes to the armed
-        night state.
-      default: []
-      selector:
-        action: {}
-    action_armed_away:
-      name: Action Armed Away
-      description:
-        An action to be performed when the alarm panel changes to the armed
-        away state.
-      default: []
-      selector:
-        action: {}
-    action_disarmed:
-      name: Action Disarmed
-      description:
-        An action to be performed when the alarm panel changes to the disarmed
-        state.
-      default: []
-      selector:
-        action: {}
-    action_pending:
-      name: Action Pending
-      description:
-        An action to be performed when the alarm panel changes to the pending
-        state.
-      default: []
-      selector:
-        action: {}
-    action_panic:
-      name: Action Panic
-      description:
-        An action to be performed when the panic / SOS button of the keypad
-        is pressed.
-      default: []
-      selector:
-        action: {}
-    action_alarm:
-      name: Action Alarm
-      description: An action to be performed when alarm is triggered is pressed.
-      default: []
-      selector:
-        action: {}
+      description: "Manage Control Panel settings and actions triggered by state changes."
+      icon: mdi:shield-lock
+      collapsed: false
+      input:
+        control_panel:
+          name: Control Panel
+          description: "An alarm control panel. \nExample: Alarmo or https://www.home-assistant.io/integrations/manual"
+          default: []
+          selector:
+            entity:
+              domain:
+                - alarm_control_panel
+              multiple: false
+        pin_control_panel:
+          name: Control Panel Pincode
+          description: The Valid PIN Code to be used for controlling Control Panel.
+    alarmo_actions:
+      name: Actions Triggered by Control Panel State Change
+      description: "Define the actions to be performed whenever the alarm panel state changes (e.g., armed, disarmed, triggered)."
+      icon: mdi:shield-alert
+      collapsed: true
+      input:
+        action_arming:
+          name: Action Arming
+          description:
+            An action to be performed when the alarm panel changes to the arming
+            state.
+          default: []
+          selector:
+            action: {}
+        action_armed_home:
+          name: Action Armed Home
+          description:
+            An action to be performed when the alarm panel changes to the armed
+            home state.
+          default: []
+          selector:
+            action: {}
+        action_armed_night:
+          name: Action Armed Night
+          description:
+            An action to be performed when the alarm panel changes to the armed
+            night state.
+          default: []
+          selector:
+            action: {}
+        action_armed_away:
+          name: Action Armed Away
+          description:
+            An action to be performed when the alarm panel changes to the armed
+            away state.
+          default: []
+          selector:
+            action: {}
+        action_disarmed:
+          name: Action Disarmed
+          description:
+            An action to be performed when the alarm panel changes to the disarmed
+            state.
+          default: []
+          selector:
+            action: {}
+        action_pending:
+          name: Action Pending
+          description:
+            An action to be performed when the alarm panel changes to the pending
+            state.
+          default: []
+          selector:
+            action: {}
+        action_panic:
+          name: Action Panic
+          description:
+            An action to be performed when the panic / SOS button of the keypad
+            is pressed.
+          default: []
+          selector:
+            action: {}
+        action_alarm:
+          name: Action Alarm
+          description: An action to be performed when alarm is triggered is pressed.
+          default: []
+          selector:
+            action: {}
+    custom_action_1:
+      name: Special Pin Code 1
+      description: "Set up a specific action to be triggered when PIN code 1 is entered (PIN code + any arming button)."
+      icon: mdi:gesture-tap-button
+      collapsed: true
+      input:
+        custom_pincode_1:
+          name: Pin Code 1
+          description: "Enter the PIN code required to trigger custom action 1 via the keypad.\nYou can either use the same code from the keypad PIN code list or enter a new code that will launch this action."
+          default: ""
+        custom_action_1:
+          name: Action for Pin Code 1
+          description: "Define the action to execute when the PIN code 1 is entered on the keypad."
+          default: []
+          selector:
+            action: {}
+    custom_action_2:
+      name: Special Pin Code 2
+      description: "Set up a specific action to be triggered when PIN code 2 is entered (PIN code + any arming button)."
+      icon: mdi:gesture-tap-button
+      collapsed: true
+      input:
+        custom_pincode_2:
+          name: Pin Code Actn 2
+          description: "Enter the PIN code required to trigger custom action 1 via the keypad.\nYou can either use the same code from the keypad PIN code list or enter a new code that will launch this action."
+          default: ""
+        custom_action_2:
+          name: Action for Pin Code 2
+          description: "Define the action to execute when the PIN code 2 is entered on the keypad."
+          default: []
+          selector:
+            action: {}
+    custom_action_3:
+      name: Special Pin Code 3
+      description: "Set up a specific action to be triggered when PIN code 3 is entered (PIN code + any arming button)."
+      icon: mdi:gesture-tap-button
+      collapsed: true
+      input:
+        custom_pincode_3:
+          name: Pin Code 3
+          description: "Enter the PIN code required to trigger custom action 1 via the keypad.\nYou can either use the same code from the keypad PIN code list or enter a new code that will launch this action."
+          default: ""
+        custom_action_3:
+          name: Action for Pin Code 3
+          description: "Define the action to execute when the PIN code 3 is entered on the keypad."
+          default: []
+          selector:
+            action: {}
   source_url: https://github.com/Bygood91/frient_keypad_alarmo/blob/main/frient_keypad_with_alarmo.yaml
 variables:
   pin_list_var: !input pin_list
   pin_list: "{{ pin_list_var.split(';') }}"
+  custom_pincode_1: !input custom_pincode_1
+  custom_pincode_2: !input custom_pincode_2
+  custom_pincode_3: !input custom_pincode_3
+  pin_actions_list: >
+    {{ [custom_pincode_1, custom_pincode_2, custom_pincode_3] }}
 trigger:
   - platform: state
     entity_id: !input control_panel
@@ -217,7 +290,7 @@ action:
                     target:
                       entity_id: !input control_panel
                     data:
-                      code: !input pin_alarmo
+                      code: !input pin_control_panel
               - conditions:
                   - condition: template
                     value_template:
@@ -228,7 +301,7 @@ action:
                     target:
                       entity_id: !input control_panel
                     data:
-                      code: !input pin_alarmo
+                      code: !input pin_control_panel
               - conditions:
                   - condition: template
                     value_template:
@@ -239,7 +312,7 @@ action:
                     target:
                       entity_id: !input control_panel
                     data:
-                      code: !input pin_alarmo
+                      code: !input pin_control_panel
               - conditions:
                   - condition: template
                     value_template:
@@ -250,7 +323,7 @@ action:
                     target:
                       entity_id: !input control_panel
                     data:
-                      code: !input pin_alarmo
+                      code: !input pin_control_panel
               - conditions:
                   - condition: template
                     value_template: '{{ trigger.payload_json.action == "emergency" }}'
@@ -259,9 +332,21 @@ action:
                     default: !input action_panic
               - conditions:
                   - condition: template
+                    value_template: "{{ trigger.payload_json.action_code in custom_pincode_1 }}"
+                sequence: !input "custom_action_1"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.payload_json.action_code in custom_pincode_2 }}"
+                sequence: !input "custom_action_2"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.payload_json.action_code in custom_pincode_3 }}"
+                sequence: !input "custom_action_3"
+              - conditions:
+                  - condition: template
                     value_template:
-                      "{{ trigger.payload_json.action_code not in pin_list and trigger.payload_json.action_code
-                      | int(-1) != -1 }}"
+                      "{{ trigger.payload_json.action_code not in pin_list and trigger.payload_json.action_code not in pin_actions_list and
+                      trigger.payload_json.action_code | int(-1) != -1 }}"
                 sequence:
                   - service: mqtt.publish
                     data:
