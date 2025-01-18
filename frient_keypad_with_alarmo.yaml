@@ -209,10 +209,10 @@ action:
           - condition: trigger
             id: panel_arming
         sequence:
-          - data:
-              topic: zigbee2mqtt/Keypad/set
+          - service: mqtt.publish
+            data:
+              topic: !input z2m_keypad_path_set
               payload: "{\n\"arm_mode\": \n  {\n  \"mode\": \"exit_delay\"\n  }\n}"
-            action: mqtt.publish
           - choose:
             default: !input action_arming
       - conditions:
