@@ -174,42 +174,42 @@ variables:
   custom_pincode_3: !input custom_pincode_3
   pin_actions_list: >
     {{ [custom_pincode_1, custom_pincode_2, custom_pincode_3] }}
-trigger:
-  - platform: state
+triggers:
+  - trigger: state
     entity_id: !input control_panel
     to: arming
     id: panel_arming
-  - platform: state
+  - trigger: state
     entity_id: !input control_panel
     to: armed_night
     id: panel_armed_night
-  - platform: state
+  - trigger: state
     entity_id: !input control_panel
     to: disarmed
     id: panel_disarmed
-  - platform: state
+  - trigger: state
     entity_id: !input control_panel
     to: armed_away
     id: panel_armed_away
-  - platform: state
+  - trigger: state
     entity_id: !input control_panel
     to: pending
     id: panel_pending
-  - platform: state
+  - trigger: state
     entity_id: !input control_panel
     to: triggered
     id: panel_triggered
-  - platform: mqtt
+  - trigger: mqtt
     topic: !input z2m_keypad_path
     id: keypad_mqtt
 condition: []
-action:
+actions:
   - choose:
       - conditions:
           - condition: trigger
             id: panel_arming
         sequence:
-          - service: mqtt.publish
+          - action: mqtt.publish
             data:
               topic: !input z2m_keypad_path_set
               payload: "{\n\"arm_mode\": \n  {\n  \"mode\": \"exit_delay\"\n  }\n}"
@@ -219,7 +219,7 @@ action:
           - condition: trigger
             id: panel_armed_away
         sequence:
-          - service: mqtt.publish
+          - action: mqtt.publish
             data:
               topic: !input z2m_keypad_path_set
               payload: "{\n \"arm_mode\": \n  {\n   \"mode\": \"arm_all_zones\"\n  }\n}"
@@ -229,7 +229,7 @@ action:
           - condition: trigger
             id: panel_disarmed
         sequence:
-          - service: mqtt.publish
+          - action: mqtt.publish
             data:
               topic: !input z2m_keypad_path_set
               payload: "{\n \"arm_mode\": \n  {\n    \"mode\": \"disarm\"\n  }\n}"
@@ -239,7 +239,7 @@ action:
           - condition: trigger
             id: panel_armed_home
         sequence:
-          - service: mqtt.publish
+          - action: mqtt.publish
             data:
               topic: !input z2m_keypad_path_set
               payload: "{\n \"arm_mode\": \n  {\n   \"mode\": \"arm_day_zones\"\n  }\n}"
@@ -249,7 +249,7 @@ action:
           - condition: trigger
             id: panel_armed_night
         sequence:
-          - service: mqtt.publish
+          - action: mqtt.publish
             data:
               topic: !input z2m_keypad_path_set
               payload: "{\n \"arm_mode\": \n  {\n   \"mode\": \"arm_night_zones\"\n  }\n}"
@@ -259,7 +259,7 @@ action:
           - condition: trigger
             id: panel_pending
         sequence:
-          - service: mqtt.publish
+          - action: mqtt.publish
             data:
               topic: !input z2m_keypad_path_set
               payload: "{\n \"arm_mode\": \n  {\n   \"mode\": \"entry_delay\"\n  }\n}"
@@ -269,7 +269,7 @@ action:
           - condition: trigger
             id: panel_triggered
         sequence:
-          - service: mqtt.publish
+          - action: mqtt.publish
             data:
               topic: !input z2m_keypad_path_set
               payload: "{\n \"arm_mode\": \n  {\n   \"mode\": \"in_alarm\"\n  }\n}"
@@ -286,7 +286,7 @@ action:
                       '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
                       == "arm_all_zones" }}'
                 sequence:
-                  - service: alarm_control_panel.alarm_arm_away
+                  - action: alarm_control_panel.alarm_arm_away
                     target:
                       entity_id: !input control_panel
                     data:
@@ -297,7 +297,7 @@ action:
                       '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
                       == "arm_day_zones" }}'
                 sequence:
-                  - service: alarm_control_panel.alarm_arm_home
+                  - action: alarm_control_panel.alarm_arm_home
                     target:
                       entity_id: !input control_panel
                     data:
@@ -308,7 +308,7 @@ action:
                       '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
                       == "arm_night_zones" }}'
                 sequence:
-                  - service: alarm_control_panel.alarm_arm_night
+                  - action: alarm_control_panel.alarm_arm_night
                     target:
                       entity_id: !input control_panel
                     data:
@@ -319,7 +319,7 @@ action:
                       '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
                       == "disarm" }}'
                 sequence:
-                  - service: alarm_control_panel.alarm_disarm
+                  - action: alarm_control_panel.alarm_disarm
                     target:
                       entity_id: !input control_panel
                     data:
@@ -348,7 +348,7 @@ action:
                       "{{ trigger.payload_json.action_code not in pin_list and trigger.payload_json.action_code not in pin_actions_list and
                       trigger.payload_json.action_code | int(-1) != -1 }}"
                 sequence:
-                  - service: mqtt.publish
+                  - action: mqtt.publish
                     data:
                       topic: !input z2m_keypad_path_set
                       payload:
