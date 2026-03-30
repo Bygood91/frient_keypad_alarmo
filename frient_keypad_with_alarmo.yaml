@@ -332,21 +332,20 @@ actions:
                     default: !input action_panic
               - conditions:
                   - condition: template
-                    value_template: "{{ trigger.payload_json.action_code in custom_pincode_1 }}"
+                    value_template: "{{ custom_pincode_1 != '' and trigger.payload_json.action_code not in [none, ''] and trigger.payload_json.action_code in custom_pincode_1 }}"
                 sequence: !input "custom_action_1"
               - conditions:
                   - condition: template
-                    value_template: "{{ trigger.payload_json.action_code in custom_pincode_2 }}"
+                    value_template: "{{ custom_pincode_2 != '' and trigger.payload_json.action_code not in [none, ''] and trigger.payload_json.action_code in custom_pincode_2 }}"
                 sequence: !input "custom_action_2"
               - conditions:
                   - condition: template
-                    value_template: "{{ trigger.payload_json.action_code in custom_pincode_3 }}"
+                    value_template: "{{ custom_pincode_3 != '' and trigger.payload_json.action_code not in [none, ''] and trigger.payload_json.action_code in custom_pincode_3 }}"
                 sequence: !input "custom_action_3"
               - conditions:
                   - condition: template
                     value_template:
-                      "{{ trigger.payload_json.action_code not in pin_list and trigger.payload_json.action_code not in pin_actions_list and
-                      trigger.payload_json.action_code | int(-1) != -1 }}"
+                      "{{ trigger.payload_json.action_code not in pin_list and trigger.payload_json.action_code not in pin_actions_list and trigger.payload_json.action_code | int(-1) != -1 }}"
                 sequence:
                   - action: mqtt.publish
                     data:
