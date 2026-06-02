@@ -355,8 +355,7 @@ actions:
                     data:
                       topic: !input z2m_keypad_path_set
                       payload:
-                        "{\n \"arm_mode\": \n  {\n   \"transaction\": \"{{ trigger.payload_json.action_transaction
-                        }}\",\n   \"mode\": \"invalid_code\"\n  }\n}"
+                        "{\n \"arm_mode\": \n  {\n   \"transaction\": \"{{ trigger.payload_json.action_transaction | default('', true) }}\",\n   \"mode\": \"invalid_code\"\n  }\n}"
             default: []
     default: []
 mode: parallel
