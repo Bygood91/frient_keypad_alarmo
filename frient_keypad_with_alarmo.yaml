@@ -185,6 +185,10 @@ triggers:
     id: panel_armed_night
   - trigger: state
     entity_id: !input control_panel
+    to: armed_home
+    id: panel_armed_home
+  - trigger: state
+    entity_id: !input control_panel
     to: disarmed
     id: panel_disarmed
   - trigger: state
