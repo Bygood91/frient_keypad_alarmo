@@ -1,0 +1,395 @@
+blueprint:
+  name: "Frient Keypad with Alarm Control Panel - ZHA (ex: Alarmo)"
+  description:
+    "This Blueprint is the ZHA (Zigbee Home Automation) version of the Zigbee2MQTT
+    blueprint. It allows the synchronisation of an alarm control panel with a
+    frient Intelligent Keypad (KEPZB-110) paired with ZHA.\n
+    Keypad input is received as ZHA events, and the keypad's own ZHA
+    alarm_control_panel entity is used to reflect the alarm status on the keypad.\n
+    Setup:\n
+    1. Pair the keypad with ZHA.\n
+    2. Set a Master Code in the ZHA integration (Configure -> Alarm Control Panel Options).\n
+    3. Select the keypad device and its alarm_control_panel entity below."
+  domain: automation
+  homeassistant:
+    min_version: 2024.6.0
+  input:
+    keypad_zha:
+      name: Keypad (ZHA)
+      description: "Configure the ZHA keypad device and manage access codes or RFID tags."
+      icon: mdi:dialpad
+      collapsed: false
+      input:
+        zha_keypad_device:
+          name: ZHA Keypad Device
+          description:
+            "Your frient Intelligent Keypad as exposed by the Zigbee Home Automation
+            integration. Select the device itself (frient A/S - KEPZB-110)."
+          selector:
+            device:
+              integration: zha
+        zha_keypad_panel:
+          name: ZHA Keypad Alarm Control Panel
+          description:
+            "The alarm_control_panel entity that ZHA creates for the keypad itself
+            (e.g. alarm_control_panel.frient_alarm_keypad_alarm_control_panel).\n
+            This entity is used to update the keypad display and to detect the SOS
+            button."
+          selector:
+            entity:
+              domain:
+                - alarm_control_panel
+              multiple: false
+        zha_keypad_code:
+          name: ZHA Keypad Master Code
+          description:
+            "The Master Code configured in the Zigbee Home Automation integration
+            (Configure -> Alarm Control Panel Options).\n
+            It is required for Home Assistant to command the keypad panel entity.\n
+            Tip: use a long 'system' code here, distinct from the user PIN codes
+            configured below, so it can never be used to arm/disarm the alarm."
+          default: ""
+        pin_list:
+          name: Keypad Pincode List
+          description:
+            "A list of valid PIN codes and RFID tags that can be accepted by your
+            keypad, separated by semicolons \" ; \".\n You can enter either a PIN
+            code or an RFID tag for authentication.\n For example: 1234; +ACF5678B"
+    control_panel:
+      name: Control Panel
+      description: "Manage Control Panel settings and actions triggered by state changes."
+      icon: mdi:shield-lock
+      collapsed: false
+      input:
+        control_panel:
+          name: Control Panel
+          description: "An alarm control panel. \nExample: Alarmo or https://www.home-assistant.io/integrations/manual"
+          default: []
+          selector:
+            entity:
+              domain:
+                - alarm_control_panel
+              multiple: false
+        pin_control_panel:
+          name: Control Panel Pincode
+          description: The Valid PIN Code to be used for controlling Control Panel.
+    alarmo_actions:
+      name: Actions Triggered by Control Panel State Change
+      description: "Define the actions to be performed whenever the alarm panel state changes (e.g., armed, disarmed, triggered)."
+      icon: mdi:shield-alert
+      collapsed: true
+      input:
+        action_arming:
+          name: Action Arming
+          description:
+            An action to be performed when the alarm panel changes to the arming
+            state.
+          default: []
+          selector:
+            action: {}
+        action_armed_home:
+          name: Action Armed Home
+          description:
+            An action to be performed when the alarm panel changes to the armed
+            home state.
+          default: []
+          selector:
+            action: {}
+        action_armed_night:
+          name: Action Armed Night
+          description:
+            An action to be performed when the alarm panel changes to the armed
+            night state.
+          default: []
+          selector:
+            action: {}
+        action_armed_away:
+          name: Action Armed Away
+          description:
+            An action to be performed when the alarm panel changes to the armed
+            away state.
+          default: []
+          selector:
+            action: {}
+        action_disarmed:
+          name: Action Disarmed
+          description:
+            An action to be performed when the alarm panel changes to the disarmed
+            state.
+          default: []
+          selector:
+            action: {}
+        action_pending:
+          name: Action Pending
+          description:
+            An action to be performed when the alarm panel changes to the pending
+            state.
+          default: []
+          selector:
+            action: {}
+        action_panic:
+          name: Action Panic
+          description:
+            An action to be performed when the panic / SOS button of the keypad
+            is pressed.
+          default: []
+          selector:
+            action: {}
+        action_alarm:
+          name: Action Alarm
+          description: An action to be performed when alarm is triggered is pressed.
+          default: []
+          selector:
+            action: {}
+    custom_action_1:
+      name: Special Pin Code 1
+      description: "Set up a specific action to be triggered when PIN code 1 is entered (PIN code + any arming button)."
+      icon: mdi:gesture-tap-button
+      collapsed: true
+      input:
+        custom_pincode_1:
+          name: Pin Code 1
+          description: "Enter the PIN code required to trigger custom action 1 via the keypad.\nYou can either use the same code from the keypad PIN code list or enter a new code that will launch this action."
+          default: ""
+        custom_action_1:
+          name: Action for Pin Code 1
+          description: "Define the action to execute when the PIN code 1 is entered on the keypad."
+          default: []
+          selector:
+            action: {}
+    custom_action_2:
+      name: Special Pin Code 2
+      description: "Set up a specific action to be triggered when PIN code 2 is entered (PIN code + any arming button)."
+      icon: mdi:gesture-tap-button
+      collapsed: true
+      input:
+        custom_pincode_2:
+          name: Pin Code Actn 2
+          description: "Enter the PIN code required to trigger custom action 1 via the keypad.\nYou can either use the same code from the keypad PIN code list or enter a new code that will launch this action."
+          default: ""
+        custom_action_2:
+          name: Action for Pin Code 2
+          description: "Define the action to execute when the PIN code 2 is entered on the keypad."
+          default: []
+          selector:
+            action: {}
+    custom_action_3:
+      name: Special Pin Code 3
+      description: "Set up a specific action to be triggered when PIN code 3 is entered (PIN code + any arming button)."
+      icon: mdi:gesture-tap-button
+      collapsed: true
+      input:
+        custom_pincode_3:
+          name: Pin Code 3
+          description: "Enter the PIN code required to trigger custom action 1 via the keypad.\nYou can either use the same code from the keypad PIN code list or enter a new code that will launch this action."
+          default: ""
+        custom_action_3:
+          name: Action for Pin Code 3
+          description: "Define the action to execute when the PIN code 3 is entered on the keypad."
+          default: []
+          selector:
+            action: {}
+  source_url: https://github.com/yonidavidson/frient_keypad_alarmo/blob/main/frient_keypad_with_alarmo_zha.yaml
+variables:
+  pin_list_var: !input pin_list
+  pin_list: "{{ pin_list_var.split(';') }}"
+  custom_pincode_1: !input custom_pincode_1
+  custom_pincode_2: !input custom_pincode_2
+  custom_pincode_3: !input custom_pincode_3
+  pin_actions_list: >
+    {{ [custom_pincode_1, custom_pincode_2, custom_pincode_3] }}
+  control_panel_entity: !input control_panel
+  keypad_data: >
+    {{ trigger.event.data.params
+       if trigger.event.data.params is mapping and trigger.event.data.params | count > 0
+       else trigger.event.data.args }}
+triggers:
+  - trigger: state
+    entity_id: !input control_panel
+    to: arming
+    id: panel_arming
+  - trigger: state
+    entity_id: !input control_panel
+    to: armed_night
+    id: panel_armed_night
+  - trigger: state
+    entity_id: !input control_panel
+    to: disarmed
+    id: panel_disarmed
+  - trigger: state
+    entity_id: !input control_panel
+    to: armed_away
+    id: panel_armed_away
+  - trigger: state
+    entity_id: !input control_panel
+    to: pending
+    id: panel_pending
+  - trigger: state
+    entity_id: !input control_panel
+    to: triggered
+    id: panel_triggered
+  - trigger: event
+    event_type: zha_event
+    event_data:
+      device_id: !input zha_keypad_device
+      command: arm
+    id: keypad_arm
+  - trigger: state
+    entity_id: !input zha_keypad_panel
+    to: triggered
+    id: keypad_panic
+condition: []
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: panel_arming
+        sequence:
+          - action: alarm_control_panel.alarm_trigger
+            target:
+              entity_id: !input zha_keypad_panel
+            data:
+              code: !input zha_keypad_code
+            continue_on_error: true
+          - choose:
+            default: !input action_arming
+      - conditions:
+          - condition: trigger
+            id: panel_armed_away
+        sequence:
+          - action: alarm_control_panel.alarm_arm_away
+            target:
+              entity_id: !input zha_keypad_panel
+            data:
+              code: !input zha_keypad_code
+            continue_on_error: true
+          - choose:
+            default: !input action_armed_away
+      - conditions:
+          - condition: trigger
+            id: panel_disarmed
+        sequence:
+          - action: alarm_control_panel.alarm_disarm
+            target:
+              entity_id: !input zha_keypad_panel
+            data:
+              code: !input zha_keypad_code
+            continue_on_error: true
+          - choose:
+            default: !input action_disarmed
+      - conditions:
+          - condition: trigger
+            id: panel_armed_home
+        sequence:
+          - action: alarm_control_panel.alarm_arm_home
+            target:
+              entity_id: !input zha_keypad_panel
+            data:
+              code: !input zha_keypad_code
+            continue_on_error: true
+          - choose:
+            default: !input action_armed_home
+      - conditions:
+          - condition: trigger
+            id: panel_armed_night
+        sequence:
+          - action: alarm_control_panel.alarm_arm_night
+            target:
+              entity_id: !input zha_keypad_panel
+            data:
+              code: !input zha_keypad_code
+            continue_on_error: true
+          - choose:
+            default: !input action_armed_night
+      - conditions:
+          - condition: trigger
+            id: panel_pending
+        sequence:
+          - action: alarm_control_panel.alarm_trigger
+            target:
+              entity_id: !input zha_keypad_panel
+            data:
+              code: !input zha_keypad_code
+            continue_on_error: true
+          - choose:
+            default: !input action_pending
+      - conditions:
+          - condition: trigger
+            id: panel_triggered
+        sequence:
+          - action: alarm_control_panel.alarm_trigger
+            target:
+              entity_id: !input zha_keypad_panel
+            data:
+              code: !input zha_keypad_code
+            continue_on_error: true
+          - choose:
+            default: !input action_alarm
+      - conditions:
+          - condition: trigger
+            id: keypad_arm
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ keypad_data.code in pin_list and keypad_data.arm_mode == 3 }}'
+                sequence:
+                  - action: alarm_control_panel.alarm_arm_away
+                    target:
+                      entity_id: !input control_panel
+                    data:
+                      code: !input pin_control_panel
+              - conditions:
+                  - condition: template
+                    value_template: '{{ keypad_data.code in pin_list and keypad_data.arm_mode == 1 }}'
+                sequence:
+                  - action: alarm_control_panel.alarm_arm_home
+                    target:
+                      entity_id: !input control_panel
+                    data:
+                      code: !input pin_control_panel
+              - conditions:
+                  - condition: template
+                    value_template: '{{ keypad_data.code in pin_list and keypad_data.arm_mode == 2 }}'
+                sequence:
+                  - action: alarm_control_panel.alarm_arm_night
+                    target:
+                      entity_id: !input control_panel
+                    data:
+                      code: !input pin_control_panel
+              - conditions:
+                  - condition: template
+                    value_template: '{{ keypad_data.code in pin_list and keypad_data.arm_mode == 0 }}'
+                sequence:
+                  - action: alarm_control_panel.alarm_disarm
+                    target:
+                      entity_id: !input control_panel
+                    data:
+                      code: !input pin_control_panel
+              - conditions:
+                  - condition: template
+                    value_template: "{{ custom_pincode_1 != '' and keypad_data.code not in [none, ''] and keypad_data.code in custom_pincode_1.split(';') }}"
+                sequence: !input "custom_action_1"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ custom_pincode_2 != '' and keypad_data.code not in [none, ''] and keypad_data.code in custom_pincode_2.split(';') }}"
+                sequence: !input "custom_action_2"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ custom_pincode_3 != '' and keypad_data.code not in [none, ''] and keypad_data.code in custom_pincode_3.split(';') }}"
+                sequence: !input "custom_action_3"
+            default: []
+      - conditions:
+          - condition: trigger
+            id: keypad_panic
+          - condition: template
+            value_template: >-
+              {{ not is_state(control_panel_entity, 'triggered')
+                 and not is_state(control_panel_entity, 'arming')
+                 and not is_state(control_panel_entity, 'pending') }}
+        sequence:
+          - choose:
+            default: !input action_panic
+    default: []
+mode: parallel
+max: 10
