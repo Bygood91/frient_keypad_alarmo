@@ -185,6 +185,10 @@ triggers:
     id: panel_armed_night
   - trigger: state
     entity_id: !input control_panel
+    to: armed_home
+    id: panel_armed_home
+  - trigger: state
+    entity_id: !input control_panel
     to: disarmed
     id: panel_disarmed
   - trigger: state
@@ -283,8 +287,8 @@ actions:
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
-                      == "arm_all_zones" }}'
+                      "{{ trigger.payload_json.action_code | default('', true) in pin_list and trigger.payload_json.action
+                      == 'arm_all_zones' }}"
                 sequence:
                   - action: alarm_control_panel.alarm_arm_away
                     target:
@@ -294,8 +298,8 @@ actions:
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
-                      == "arm_day_zones" }}'
+                      "{{ trigger.payload_json.action_code | default('', true) in pin_list and trigger.payload_json.action
+                      == 'arm_day_zones' }}"
                 sequence:
                   - action: alarm_control_panel.alarm_arm_home
                     target:
@@ -305,8 +309,8 @@ actions:
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
-                      == "arm_night_zones" }}'
+                      "{{ trigger.payload_json.action_code | default('', true) in pin_list and trigger.payload_json.action
+                      == 'arm_night_zones' }}"
                 sequence:
                   - action: alarm_control_panel.alarm_arm_night
                     target:
@@ -316,8 +320,8 @@ actions:
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
-                      == "disarm" }}'
+                      "{{ trigger.payload_json.action_code | default('', true) in pin_list and trigger.payload_json.action
+                      == 'disarm' }}"
                 sequence:
                   - action: alarm_control_panel.alarm_disarm
                     target:
@@ -332,27 +336,26 @@ actions:
                     default: !input action_panic
               - conditions:
                   - condition: template
-                    value_template: "{{ custom_pincode_1 != '' and trigger.payload_json.action_code not in [none, ''] and trigger.payload_json.action_code in custom_pincode_1 }}"
+                    value_template: "{{ custom_pincode_1 != '' and trigger.payload_json.action_code | default('', true) not in [none, ''] and trigger.payload_json.action_code | default('', true) == custom_pincode_1 }}"
                 sequence: !input "custom_action_1"
               - conditions:
                   - condition: template
-                    value_template: "{{ custom_pincode_2 != '' and trigger.payload_json.action_code not in [none, ''] and trigger.payload_json.action_code in custom_pincode_2 }}"
+                    value_template: "{{ custom_pincode_2 != '' and trigger.payload_json.action_code | default('', true) not in [none, ''] and trigger.payload_json.action_code | default('', true) == custom_pincode_2 }}"
                 sequence: !input "custom_action_2"
               - conditions:
                   - condition: template
-                    value_template: "{{ custom_pincode_3 != '' and trigger.payload_json.action_code not in [none, ''] and trigger.payload_json.action_code in custom_pincode_3 }}"
+                    value_template: "{{ custom_pincode_3 != '' and trigger.payload_json.action_code | default('', true) not in [none, ''] and trigger.payload_json.action_code | default('', true) == custom_pincode_3 }}"
                 sequence: !input "custom_action_3"
               - conditions:
                   - condition: template
                     value_template:
-                      "{{ trigger.payload_json.action_code not in pin_list and trigger.payload_json.action_code not in pin_actions_list and trigger.payload_json.action_code | int(-1) != -1 }}"
+                      "{{ trigger.payload_json.action_code | default('', true) not in pin_list and trigger.payload_json.action_code | default('', true) not in pin_actions_list and trigger.payload_json.action_code | default('', true) | int(-1) != -1 }}"
                 sequence:
                   - action: mqtt.publish
                     data:
                       topic: !input z2m_keypad_path_set
                       payload:
-                        "{\n \"arm_mode\": \n  {\n   \"transaction\": \"{{ trigger.payload_json.action_transaction
-                        }}\",\n   \"mode\": \"invalid_code\"\n  }\n}"
+                        "{\n \"arm_mode\": \n  {\n   \"transaction\": \"{{ trigger.payload_json.action_transaction | default('', true) }}\",\n   \"mode\": \"invalid_code\"\n  }\n}"
             default: []
     default: []
 mode: parallel
